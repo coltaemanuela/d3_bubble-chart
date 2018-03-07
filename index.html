@@ -5,114 +5,80 @@
     <link rel="stylesheet" type="text/css" href="./index.css"/>
 </head>
 <body>
-<div class="chart"></div>
+<div class="chart">
+</div>
 
 <script>
-var height = 700;
-var width = 600;
-var margin = 40;
-//replace this dummy data with values from the CSV document
-//i< numberOfAgencies
-var data =[];
-for(var i = 0; i < 50; i++) {
-	data.push({
-    	x: Math.random() * 40,
-        y: Math.random() * 10,
-        c: Math.round(Math.random() * 10),
-        size: Math.random() * 200, //size equals the number of proposed/granted projects
-        });
-}
-
-var labelX = 'X';
-var labelY = 'Completion Year';
 var svg = d3.select('.chart')
-                    .append('svg')
-                    .attr('class', 'chart')
-                    .attr("width", width + margin + margin)
-                    .attr("height", height + margin + margin)
-                    .append("g")
-                    .attr("transform", "translate(" + margin + "," + margin + ")");
+            .append('svg')
+            .attr('class', 'chart')
+            .attr("width", width + margin + margin)
+            .attr("height", height + margin + margin)
+            .append("g")
+            .attr("transform", "translate(" + margin + "," + margin + ")");
 
-var x = d3.scaleLinear()
-					            .domain([d3.min(data, function (d) { return d.x; }), d3.max(data, function (d) { return d.x; })])
-					            .range([0, width]);
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+    .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x", 20)
+    .attr("y", -margin)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text(labelY);
 
-var y = d3.scaleLinear()
-					            .domain([d3.min(data, function (d) { return d.y; }), d3.max(data, function (d) { return d.y; })])
-					            .range([height, 0]);
-
-var scale = d3.scaleSqrt()
-					            .domain([d3.min(data, function (d) { return d.size; }), d3.max(data, function (d) { return d.size; })])
-					            .range([1, 20]);
-
-var opacity = d3.scaleSqrt()
-					            .domain([d3.min(data, function (d) { return d.size; }), d3.max(data, function (d) { return d.size; })])
-					            .range([1, .5]);
-
-var color = d3.scaleOrdinal(d3.schemeCategory20);
-
-var xAxis = d3.axisBottom().scale(x);
-var yAxis = d3.axisLeft().scale(y);
-
-  svg.append("g")
-					        .attr("class", "y axis")
-					        .call(yAxis)
-					        .append("text")
-						        .attr("transform", "rotate(-90)")
-						        .attr("x", 20)
-						        .attr("y", -margin)
-						        .attr("dy", ".71em")
-						        .style("text-anchor", "end")
-						        .text(labelY);
-                          // x axis and label
-                          svg.append("g")
-                              .attr("class", "x axis")
-                              .attr("transform", "translate(0," + height + ")")
-                              .call(xAxis)
-                              .append("text")
-                                  .attr("x", width + 20)
-                                  .attr("y", margin - 10)
-                                  .attr("dy", ".71em")
-                                  .style("text-anchor", "end")
-                                  .text(labelX);
+  // x axis and label
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis)
+    .append("text")
+    .attr("x", width + 20)
+    .attr("y", margin - 10)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text(labelX);
 
 svg.selectAll("circle")
-                              .data(data)
-                              .enter()
-                              .insert("circle")
-                              .attr("cx", width / 2)
-                              .attr("cy", height / 2)
-                              .attr("opacity", function (d) { return opacity(d.size); })
-                              .attr("r", function (d) { return scale(d.size); })
-                              .style("fill", function (d) { return color(d.c); })
-                              .on('mouseover', function (d, i) {
-                                  fade(d.c, .1);
-                              })
-                             .on('mouseout', function (d, i) {
-                                 fadeOut();
-                             })
-                             .transition()
-                            .delay(function (d, i) { return x(d.x) - y(d.y); })
-                            .duration(500)
-                            .attr("cx", function (d) { return x(d.x); })
-                            .attr("cy", function (d) { return y(d.y); })
-                            .ease("bounce");
+    .data(data)
+    .enter()
+    .insert("circle")
+    .attr("cx", width / 2)
+    .attr("cy", height / 2)
+    .attr("opacity", function (d) { return opacity(d.size); })
+    .attr("r", function (d) { return scale(d.size); })
+    .style("fill", function (d) { return color(d.c); })
+    .on('mouseover', function (d, i) {
+        fade(d.c, .1);
+    })
+    .on('mouseout', function (d, i) {
+       fadeOut();
+   })
+    .transition()
+    .delay(function (d, i) { return x(d.x) - y(d.y); })
+    .duration(500)
+    .attr("cx", function (d) { return x(d.x); })
+    .attr("cy", function (d) { return y(d.y); })
+    .ease("bounce");
 
 
 function fade(c, opacity) {
-                              svg.selectAll("circle")
-                                  .filter(function (d) {
-                                      return d.c != c;
-                                  })
-                                .transition()
-                                 .style("opacity", opacity);
-                          }
+  svg.selectAll("circle")
+      .filter(function (d) {
+          return d.c != c;
+      })
+      .transition()
+      .style("opacity", opacity);
+}
 
-                          function fadeOut() {
-                              svg.selectAll("circle")
-                              .transition()
-                                 .style("opacity", function (d) { opacity(d.size); });
-                          }
+function fadeOut() {
+    svg.selectAll("circle")
+    .transition()
+   .style("opacity", function (d) {
+       opacity(d.size);
+    });
+}
 </script>
 </body>
 </html>
