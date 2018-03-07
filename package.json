@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/coltaemanuela/d3_bubble-chart#readme",
   "dependencies": {
+    "ejs": "^2.5.7",
     "express": "^4.16.2"
   }
 }
