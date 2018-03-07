@@ -1,0 +1,28 @@
+{
+  "name": "d3_bubble-chart",
+  "version": "1.0.0",
+  "description": "bubble chart representing granted projects proposed bu multiple departments over the years and their budget",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coltaemanuela/d3_bubble-chart.git"
+  },
+  "keywords": [
+    "d3.js",
+    "visualisation",
+    "bubbleChart",
+    "chart"
+  ],
+  "author": "Emanuela -Felicia Colta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/coltaemanuela/d3_bubble-chart/issues"
+  },
+  "homepage": "https://github.com/coltaemanuela/d3_bubble-chart#readme",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
