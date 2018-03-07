@@ -61,24 +61,6 @@ svg.selectAll("circle")
     .attr("cx", function (d) { return x(d.x); })
     .attr("cy", function (d) { return y(d.y); })
     .ease("bounce");
-
-
-function fade(c, opacity) {
-  svg.selectAll("circle")
-      .filter(function (d) {
-          return d.c != c;
-      })
-      .transition()
-      .style("opacity", opacity);
-}
-
-function fadeOut() {
-    svg.selectAll("circle")
-    .transition()
-   .style("opacity", function (d) {
-       opacity(d.size);
-    });
-}
 </script>
 </body>
 </html>
