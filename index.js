@@ -1,16 +1,31 @@
-var values = { height:700, width:700, margin:50 };
+var values = { height:700, width:700, margin:100 };
 var data = [];
+var agencies_ids=[];
+
 d3.csv('./partly-cleaned-csv.csv', function(err,d) {
     if (err) throw error;
       d.map(x =>{
+        //calculate number of projects proposed by each agency- calculate by agency id
+        agencies_ids.push(x["Agency Code"]);
           data.push({
           x: parseInt(x["CompletionDate(B1)"].toString().substring(6, 10)), //year of the project
-          y: parseInt(x["PlannedCost($M)"]), // value of the project
-          c: Math.round(Math.random() * 10),
+          y: parseInt(x["Lifecycle Cost"]), // value of the project
+          c: Math.round(Math.random() * 10),//parseInt(x["Agency Code"])*20,
           size : Math.random() * 40  //size of the bubble will be equal to the number of the proposed projects
         });
       });
+      console.log(agencies_ids);
+      //get the unique values. Number of duplicates will be the size of the bubble
 
+    var counts = {};
+
+    agencies_ids.forEach(function(element) {
+      counts[element] = (counts[element] || 0) + 1;
+    });
+
+    for (var element in counts) {
+      console.log(element + ' = ' + counts[element]);
+    }
       console.log("data value as a global var:",data);
       //map the values in the data array - from the minumum to the maximum - in a rage defined by the dimensions of the graphic
       var x = d3.scaleLinear()
@@ -24,7 +39,7 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
       //scale for sizing the bubbles
       var scale = d3.scaleSqrt()
       	            .domain([d3.min(data, function (d) { return d.size; }), d3.max(data, function (d) { return d.size; })])
-      	            .range([1, 20]);
+      	            .range([1, 15]);
 
       var opacity = d3.scaleSqrt()
       		            .domain([d3.min(data, function (d) { return d.size; }), d3.max(data, function (d) { return d.size; })])
@@ -34,7 +49,7 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
       var color = d3.scaleOrdinal(d3.schemeCategory20);
       //labels of the axis X and Y
       var labelX = 'Completion Year';
-      var labelY = 'Planned Cost($M)';
+      var labelY = 'Lifecycle Cost';
       var labelTitle = "Project proposed over the years and their planned cost ";
       // draw the axis to the bottom, respectively, to the left
       var xAxis = d3.axisBottom().scale(x);
@@ -47,7 +62,7 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
                   .attr("height", values.height + values.margin + values.margin)
                   .append("g")
                   .attr("transform", "translate(" + values.margin + "," + values.margin + ")");
-//title of the chart
+  //title of the chart. center it
     svg.append("text")
             .attr("x", (values.width / 2))
             .attr("y", 0 - (values.margin.top / 2))
@@ -55,7 +70,8 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
             .attr("text-anchor", "middle")
             .style("text-decoration", "bold")
             .text(labelTitle);
-      //y axis and its label
+
+            //y axis and its label. Put it to the end of the axis
       svg.append("g")
           .attr("class", "y axis")
           .call(yAxis)
@@ -67,7 +83,7 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
           .style("text-anchor", "end")
           .text(labelX);
 
-      // x axis and their labels
+    // x axis and their labels. Put it to the end of the axis
       svg.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + values.height + ")")
@@ -87,7 +103,7 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
           .attr("cy", values.height / 2)
           .attr("opacity", function (d) { return opacity(d.size); })
           .attr("r", function (d) { return scale(d.size); })
-          .style("fill", function (d) { return color(d.c); })
+          .style("fill", function (d) { return color(d.c); }) // these color should correspond to those in legend
           .on('mouseover', function (d, i) {
               fade(d.c, .1);
           })
@@ -96,7 +112,7 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
          })
           .transition()
           .delay(function (d, i) { return x(d.x) - y(d.y); })
-          .duration(500)
+          .duration(550)
           .attr("cx", function (d) { return x(d.x); })
           .attr("cy", function (d) { return y(d.y); })
           .ease("bounce");
