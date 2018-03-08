@@ -1,4 +1,4 @@
-var values = { height:700, width:700, margin:40 };
+var values = { height:700, width:700, margin:50 };
 var data = [];
 d3.csv('./partly-cleaned-csv.csv', function(err,d) {
     if (err) throw error;
@@ -28,13 +28,14 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
 
       var opacity = d3.scaleSqrt()
       		            .domain([d3.min(data, function (d) { return d.size; }), d3.max(data, function (d) { return d.size; })])
-      		            .range([1, .8]);
+      		            .range([1, .5]);
 
       //color of the bubbles
       var color = d3.scaleOrdinal(d3.schemeCategory20);
       //labels of the axis X and Y
-      var labelX = 'X';
-      var labelY = 'Completion Year';
+      var labelX = 'Completion Year';
+      var labelY = 'Planned Cost($M)';
+      var labelTitle = "Project proposed over the years and their planned cost ";
       // draw the axis to the bottom, respectively, to the left
       var xAxis = d3.axisBottom().scale(x);
       var yAxis = d3.axisLeft().scale(y);
@@ -46,6 +47,14 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
                   .attr("height", values.height + values.margin + values.margin)
                   .append("g")
                   .attr("transform", "translate(" + values.margin + "," + values.margin + ")");
+//title of the chart
+    svg.append("text")
+            .attr("x", (values.width / 2))
+            .attr("y", 0 - (values.margin.top / 2))
+            .attr("class","title")
+            .attr("text-anchor", "middle")
+            .style("text-decoration", "bold")
+            .text(labelTitle);
       //y axis and its label
       svg.append("g")
           .attr("class", "y axis")
@@ -56,7 +65,7 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
           .attr("y", -values.margin)
           .attr("dy", ".71em")
           .style("text-anchor", "end")
-          .text(labelY);
+          .text(labelX);
 
       // x axis and their labels
       svg.append("g")
@@ -68,7 +77,7 @@ d3.csv('./partly-cleaned-csv.csv', function(err,d) {
           .attr("y", values.margin - 10)
           .attr("dy", ".71em")
           .style("text-anchor", "end")
-          .text(labelX);
+          .text('Completion Year');
 
       svg.selectAll("circle")
           .data(data)
