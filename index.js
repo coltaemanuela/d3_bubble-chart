@@ -2,20 +2,36 @@ var values = { height:700, width:700, margin:40 };
 //i< numberOfAgencies
 var data = [];
 
+// d3.csv('./partly-cleaned-csv.csv', function(err,d) {
+//   if (err) throw error;
+//    d.map(x => {
+//     data.push({
+//       // "agency": (x["Agency"]).toString(),
+//       x: parseInt(x["PlannedCost($M)"]), // value of the project
+//       y: parseInt(x["CompletionDate(B1)"].toString().substring(6, 10)), //year of the project
+//       c: Math.round(Math.random() * 10),
+//       size : Math.random() * 40  //size of the bubble will be equal to the number of the proposed projects
+//     });
+//   });
+//   console.log("data value in local scope",data);
+// // return data;
+// });
+
 d3.csv('./partly-cleaned-csv.csv', function(err,d) {
   if (err) throw error;
-   d.map(x => {
-    data.push({
-      // "agency": (x["Agency"]).toString(),
+   d.forEach(function(x){
+    let q = {
       x: parseInt(x["PlannedCost($M)"]), // value of the project
       y: parseInt(x["CompletionDate(B1)"].toString().substring(6, 10)), //year of the project
       c: Math.round(Math.random() * 10),
       size : Math.random() * 40  //size of the bubble will be equal to the number of the proposed projects
-    });
+    };
+    data.push(q);
   });
   console.log("data value in local scope",data);
 // return data;
 });
+
 
 //labels of the axis X and Y
 var labelX = 'X';
@@ -30,7 +46,7 @@ var x = d3.scaleLinear()
 var y = d3.scaleLinear()
           .domain([d3.min(data, function (d) { return d.y; }), d3.max(data, function (d) { return d.y; })])
           .range([values.height, 0]);
-          
+
 //scale for sizing the bubbles
 var scale = d3.scaleSqrt()
 	            .domain([d3.min(data, function (d) { return d.size; }), d3.max(data, function (d) { return d.size; })])
