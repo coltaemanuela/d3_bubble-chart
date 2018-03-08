@@ -1,19 +1,15 @@
 var values = { height:700, width:700, margin:40 };
-//i< numberOfAgencies
 var data = [];
-
-  d3.csv('./partly-cleaned-csv.csv', function(err,d) {
+d3.csv('./partly-cleaned-csv.csv', function(err,d) {
     if (err) throw error;
       d.map(x =>{
           data.push({
-          x: parseInt(x["PlannedCost($M)"]), // value of the project
-          y: parseInt(x["CompletionDate(B1)"].toString().substring(6, 10)), //year of the project
+          x: parseInt(x["CompletionDate(B1)"].toString().substring(6, 10)), //year of the project
+          y: parseInt(x["PlannedCost($M)"]), // value of the project
           c: Math.round(Math.random() * 10),
           size : Math.random() * 40  //size of the bubble will be equal to the number of the proposed projects
         });
       });
-      var labelX = 'X';
-      var labelY = 'Completion Year';
 
       console.log("data value as a global var:",data);
       //map the values in the data array - from the minumum to the maximum - in a rage defined by the dimensions of the graphic
@@ -36,30 +32,13 @@ var data = [];
 
       //color of the bubbles
       var color = d3.scaleOrdinal(d3.schemeCategory20);
-
+      //labels of the axis X and Y
+      var labelX = 'X';
+      var labelY = 'Completion Year';
       // draw the axis to the bottom, respectively, to the left
       var xAxis = d3.axisBottom().scale(x);
       var yAxis = d3.axisLeft().scale(y);
 
-      //fade in an fade out functions
-      //these will be later triggered for events such as: mouseover, mouseout
-      function fade(c, opacity) {
-        svg.selectAll("circle")
-            .filter(function (d) {
-                return d.c != c;
-            })
-            .transition()
-            .style("opacity", opacity);
-      }
-
-      function fadeOut() {
-          svg.selectAll("circle")
-          .transition()
-         .style("opacity", function (d) {
-             opacity(d.size);
-          });
-      }
-      
       var svg = d3.select('.chart')
                   .append('svg')
                   .attr('class', 'chart')
@@ -113,7 +92,23 @@ var data = [];
           .attr("cy", function (d) { return y(d.y); })
           .ease("bounce");
 
+//fade in an fade out functions
+//these will be later triggered for events such as: mouseover, mouseout
+function fade(c, opacity) {
+svg.selectAll("circle")
+    .filter(function (d) {
+        return d.c != c;
+    })
+    .transition()
+    .style("opacity", opacity);
+}
+
+function fadeOut() {
+  svg.selectAll("circle")
+  .transition()
+ .style("opacity", function (d) {
+     opacity(d.size);
   });
+}
 
-
-//labels of the axis X and Y
+});
