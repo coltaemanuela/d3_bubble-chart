@@ -4,29 +4,38 @@ var agencies_ids=[];
 
 d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
     if (err) throw error;
-      d.map(x =>{
-        //calculate number of projects proposed by each agency- calculate by agency id
-        agencies_ids.push(x["Agency Code"]);
-          data.push({
-          x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
-          y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
-          c: Math.round(Math.random() * 10),//parseInt(x["Agency Code"])*20,
-          size : Math.random() * 40  //size of the bubble will be equal to the number of the proposed projects
-        });
+      d.map(x =>{ agencies_ids.push(x["Agency Code"]);  });
+
+    //get the unique values. THis number represents the agency id.
+    //The number of occurences will represent the number of proposed projects
+    //Number of duplicates will be the size of the bubble
+    var identifyAgency = function (my_array,element_code){
+      var counts = {};
+      var contor = 0;
+      my_array.forEach(function(element) {
+        counts[element] = (counts[element] || 0) + 1;
+        if( parseInt(element) === parseInt(element_code)){
+          contor++;
+          // return contor;
+        }
       });
-      console.log(agencies_ids);
-      //get the unique values. THis number represents the agency id.
-      //The number of occurences will represent the number of proposed projects
-      //Number of duplicates will be the size of the bubble
-    var counts = {};
-    agencies_ids.forEach(function(element) {
-      counts[element] = (counts[element] || 0) + 1;
+      console.log("agency "+ element_code +" has proposed "+ contor + " projects");
+      return contor;
+    };
+
+    // identifyAgency(agencies_ids, 5);
+
+    d.map(x =>{
+        data.push(
+          {
+           x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)),//year of the project
+            y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
+            c: Math.round(Math.random() * 10),//parseInt(x["Agency Code"])*20,
+            size : identifyAgency(agencies_ids, parseInt(x["Agency Code"]))  //Math.random() * 40  //size of the bubble will be equal to the number of the proposed projects
+          }
+        );
     });
 
-    for (var element in counts) {
-      console.log(element + ' = ' + counts[element]);
-    }
-      console.log("data value as a global var:",data);
       //map the values in the data array - from the minumum to the maximum - in a rage defined by the dimensions of the graphic
       var x = d3.scaleLinear()
                 .domain([d3.min(data, function (d) { return d.x; }), d3.max(data, function (d) { return d.x; })])
@@ -48,9 +57,9 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
       //color of the bubbles
       var color = d3.scaleOrdinal(d3.schemeCategory20);
       //labels of the axis X and Y
-      var labelX = 'Completion Year';
-      var labelY = 'Lifecycle Cost';
-      var labelTitle = "Project proposed over the years and their planned cost ";
+      var labelX = '["Projected/Actual Project Completion Year';
+      var labelY = 'Projected/Actual Cost ($ M)"';
+      var labelTitle = "Projects proposed over the years and their planned cost ";
       // draw the axis to the bottom, respectively, to the left
       var xAxis = d3.axisBottom().scale(x);
       var yAxis = d3.axisLeft().scale(y);
