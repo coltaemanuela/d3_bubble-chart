@@ -12,21 +12,21 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
     var identifyAgency = function (my_array,element_code){
       var counts = {};
       var contor = 0;
-      my_array.forEach(function(element) {
-        counts[element] = (counts[element] || 0) + 1;
-        if( parseInt(element) === parseInt(element_code)){
+      my_array.forEach(elem => {
+        counts[elem] = (counts[elem] || 0) + 1;
+        if( parseInt(elem) === parseInt(element_code)){
           contor++;
         }
       });
       // console.log("agency with id  "+ element_code +" has proposed "+ contor + " projects");
       return contor;
     };
-
+    
     d.map(x =>{
         data.push({
             x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
             y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
-            c: Math.round(Math.random() * 10),//parseInt(x["Agency Code"])*20,
+            c: parseInt(x["Agency Code"])*20,
             size : identifyAgency(agencies_ids, parseInt(x["Agency Code"])), //size of the bubble will be equal to the number of the proposed projects
             title: x["Agency Name"].toString()
           });
@@ -131,7 +131,7 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
           })
           .on('mouseout', (d, i) => {
              fadeOut();
-             return tooltip.style("visibility", "hidden");
+            //  return tooltip.style("visibility", "hidden");
          })
           .transition()
           .delay( (d, i) => { return x(d.x) - y(d.y); })
