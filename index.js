@@ -21,12 +21,12 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
       // console.log("agency with id  "+ element_code +" has proposed "+ contor + " projects");
       return contor;
     };
-    
+
     d.map(x =>{
         data.push({
             x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
             y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
-            c: parseInt(x["Agency Code"])*20,
+            c: parseInt(x["Agency Code"]), //Identify agencies by color. The agency code wil be the color number
             size : identifyAgency(agencies_ids, parseInt(x["Agency Code"])), //size of the bubble will be equal to the number of the proposed projects
             title: x["Agency Name"].toString()
           });
