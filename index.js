@@ -18,19 +18,18 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
           contor++;
         }
       });
-      console.log("agency with id  "+ element_code +" has proposed "+ contor + " projects");
+      // console.log("agency with id  "+ element_code +" has proposed "+ contor + " projects");
       return contor;
     };
 
     d.map(x =>{
-        data.push(
-          {
+        data.push({
             x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
             y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
             c: Math.round(Math.random() * 10),//parseInt(x["Agency Code"])*20,
-            size : identifyAgency(agencies_ids, parseInt(x["Agency Code"])) //size of the bubble will be equal to the number of the proposed projects
-          }
-        );
+            size : identifyAgency(agencies_ids, parseInt(x["Agency Code"])), //size of the bubble will be equal to the number of the proposed projects
+            title: x["Agency Name"].toString()
+          });
     });
 
       //map the values in the data array - from the minumum to the maximum - in a rage defined by the dimensions of the graphic
@@ -68,6 +67,7 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
                   .attr("height", values.height + values.margin + values.margin)
                   .append("g")
                   .attr("transform", "translate(" + values.margin + "," + values.margin + ")");
+
   //title of the chart. center it
     svg.append("text")
             .attr("x", (values.width / 2))
@@ -101,6 +101,7 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
           .style("text-anchor", "end")
           .text('Completion Year');
 
+
       svg.selectAll("circle")
           .data(data)
           .enter()
@@ -112,9 +113,25 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
           .style("fill", d => { return color(d.c); }) // these color should correspond to those in legend
           .on('mouseover', function (d, i) {
               fade(d.c, .1);
+              console.log(d , i);
+              // var tooltip = selection
+              //       .append("div")
+              //       .style("position", "relative")
+              //       .style("visibility", "hidden")
+              //       .style("color", "white")
+              //       .style("padding", "8px")
+              //       .style("background-color", "#626D71")
+              //       .style("border-radius", "6px")
+              //       .style("text-align", "center")
+              //       .style("font-family", "monospace")
+              //       .style("width", "400px")
+              //       .text("");
+              // tooltip.html("<p>"+ d.size + "</p>");
+              // tooltip.style("visibility", "visible");
           })
-          .on('mouseout', (d, i) => { 
+          .on('mouseout', (d, i) => {
              fadeOut();
+             return tooltip.style("visibility", "hidden");
          })
           .transition()
           .delay( (d, i) => { return x(d.x) - y(d.y); })
@@ -128,6 +145,9 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
 function fade(c, opacity) {
 svg.selectAll("circle")
     .filter(d => {
+      // if(d.c != c){
+      //   console.log(d.size + " projects in year " + d.x + "of value $" + d.y +"M" );
+      // }
         return d.c != c;
     })
     .transition()
