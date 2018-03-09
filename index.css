@@ -23,8 +23,19 @@
 
 .chart .title {
     font: 20px sans-serif;
+    color:rgb(31, 119, 180);
 }
-
+.bubble-details{
+  /*background-color: gray;*/
+  width: 70%;
+  height: auto;
+  margin: 0 auto;
+  color:rgb(31, 119, 180);
+  /*opacity:0.2;*/
+  border-radius: 3px;
+  font-family: sans-serif;
+  border-top: solid 2px rgb(31, 119, 180);
+}
 .axis path,
 .axis line {
     fill: none;

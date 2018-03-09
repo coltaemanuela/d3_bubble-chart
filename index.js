@@ -4,7 +4,7 @@ var agencies_ids=[];
 
 d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
     if (err) throw error;
-      d.map(x =>{ agencies_ids.push(x["Agency Code"]);  });
+      d.map(x => { agencies_ids.push(x["Agency Code"]);  });
 
     //get the unique values. THis number represents the agency id.
     //The number of occurences will represent the number of proposed projects
@@ -16,43 +16,40 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
         counts[element] = (counts[element] || 0) + 1;
         if( parseInt(element) === parseInt(element_code)){
           contor++;
-          // return contor;
         }
       });
-      console.log("agency "+ element_code +" has proposed "+ contor + " projects");
+      console.log("agency with id  "+ element_code +" has proposed "+ contor + " projects");
       return contor;
     };
-
-    // identifyAgency(agencies_ids, 5);
 
     d.map(x =>{
         data.push(
           {
-           x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)),//year of the project
+            x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
             y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
             c: Math.round(Math.random() * 10),//parseInt(x["Agency Code"])*20,
-            size : identifyAgency(agencies_ids, parseInt(x["Agency Code"]))  //Math.random() * 40  //size of the bubble will be equal to the number of the proposed projects
+            size : identifyAgency(agencies_ids, parseInt(x["Agency Code"])) //size of the bubble will be equal to the number of the proposed projects
           }
         );
     });
 
       //map the values in the data array - from the minumum to the maximum - in a rage defined by the dimensions of the graphic
       var x = d3.scaleLinear()
-                .domain([d3.min(data, function (d) { return d.x; }), d3.max(data, function (d) { return d.x; })])
+                .domain([d3.min(data, d => { return d.x; }), d3.max(data, d => {  return d.x; })])
                 .range([0, values.width]);
 
       var y = d3.scaleLinear()
-                .domain([d3.min(data, function (d) { return d.y; }), d3.max(data, function (d) { return d.y; })])
+                .domain([d3.min(data, d => { return d.y; }), d3.max(data, d => { return d.y; })])
                 .range([values.height, 0]);
 
       //scale for sizing the bubbles
       var scale = d3.scaleSqrt()
-      	            .domain([d3.min(data, function (d) { return d.size; }), d3.max(data, function (d) { return d.size; })])
-      	            .range([1, 15]);
+      	            .domain([d3.min(data, d => {  return d.size; }), d3.max(data, d => { return d.size; })])
+      	            .range([1, 20]);
 
       var opacity = d3.scaleSqrt()
-      		            .domain([d3.min(data, function (d) { return d.size; }), d3.max(data, function (d) { return d.size; })])
-      		            .range([1, .5]);
+      		            .domain([d3.min(data, d => {  return d.size; }), d3.max(data, d => { return d.size; })])
+      		            .range([1, .9]);
 
       //color of the bubbles
       var color = d3.scaleOrdinal(d3.schemeCategory20);
@@ -110,27 +107,27 @@ d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
           .insert("circle")
           .attr("cx", values.width / 2)
           .attr("cy", values.height / 2)
-          .attr("opacity", function (d) { return opacity(d.size); })
-          .attr("r", function (d) { return scale(d.size); })
-          .style("fill", function (d) { return color(d.c); }) // these color should correspond to those in legend
+          .attr("opacity", d => { return opacity(d.size); })
+          .attr("r", d => {  return scale(d.size); })
+          .style("fill", d => { return color(d.c); }) // these color should correspond to those in legend
           .on('mouseover', function (d, i) {
               fade(d.c, .1);
           })
-          .on('mouseout', function (d, i) {
+          .on('mouseout', (d, i) => { 
              fadeOut();
          })
           .transition()
-          .delay(function (d, i) { return x(d.x) - y(d.y); })
+          .delay( (d, i) => { return x(d.x) - y(d.y); })
           .duration(550)
-          .attr("cx", function (d) { return x(d.x); })
-          .attr("cy", function (d) { return y(d.y); })
+          .attr("cx", d => { return x(d.x); })
+          .attr("cy", d => { return y(d.y); })
           .ease("bounce");
 
 //fade in an fade out functions
 //these will be later triggered for events such as: mouseover, mouseout
 function fade(c, opacity) {
 svg.selectAll("circle")
-    .filter(function (d) {
+    .filter(d => {
         return d.c != c;
     })
     .transition()
@@ -140,7 +137,7 @@ svg.selectAll("circle")
 function fadeOut() {
   svg.selectAll("circle")
   .transition()
- .style("opacity", function (d) {
+ .style("opacity", d => {
      opacity(d.size);
   });
 }
