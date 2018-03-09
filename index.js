@@ -1,24 +1,24 @@
-var values = { height:700, width:700, margin:100 };
+var values = { height:700, width:700, margin:150 };
 var data = [];
 var agencies_ids=[];
 
-d3.csv('./partly-cleaned-csv.csv', function(err,d) {
+d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
     if (err) throw error;
       d.map(x =>{
         //calculate number of projects proposed by each agency- calculate by agency id
         agencies_ids.push(x["Agency Code"]);
           data.push({
-          x: parseInt(x["CompletionDate(B1)"].toString().substring(6, 10)), //year of the project
-          y: parseInt(x["Lifecycle Cost"]), // value of the project
+          x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
+          y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
           c: Math.round(Math.random() * 10),//parseInt(x["Agency Code"])*20,
           size : Math.random() * 40  //size of the bubble will be equal to the number of the proposed projects
         });
       });
       console.log(agencies_ids);
-      //get the unique values. Number of duplicates will be the size of the bubble
-
+      //get the unique values. THis number represents the agency id.
+      //The number of occurences will represent the number of proposed projects
+      //Number of duplicates will be the size of the bubble
     var counts = {};
-
     agencies_ids.forEach(function(element) {
       counts[element] = (counts[element] || 0) + 1;
     });
