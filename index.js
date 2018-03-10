@@ -6,7 +6,7 @@ var values = {
 var data = [];
 var agencies_ids = [];
 
-d3.csv('./COMP6214_CW1-csv(7).csv', function (err, d) {
+d3.csv('./COMP6214_CW1-csv(8).csv', function (err, d) {
   if (err) throw err;
   d.map(x => {
     agencies_ids.push(x["Agency Code"]);
