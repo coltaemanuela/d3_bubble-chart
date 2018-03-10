@@ -3,7 +3,7 @@ var data = [];
 var agencies_ids=[];
 
 d3.csv('./COMP6214_CW1-csv(7).csv', function(err,d) {
-    if (err) throw error;
+    if (err) throw err;
       d.map(x => { agencies_ids.push(x["Agency Code"]);  });
 
     //get the unique values. THis number represents the agency id.
