@@ -15,16 +15,20 @@ d3.csv('./COMP6214_CW1-csv(8).csv', function (err, d) {
   //get the unique values. THis number represents the agency id.
   //The number of occurences will represent the number of proposed projects
   //Number of duplicates will be the size of the bubble
-  var identifyAgency = function (my_array, element_code) {
+  var identifyAgency = function (my_array, element_code, element_year) {
     var counts = {};
     var contor = 0;
     my_array.forEach(elem => {
       counts[elem] = (counts[elem] || 0) + 1;
+      //verify the if the year is the same year
       if (parseInt(elem) === parseInt(element_code)) {
         contor++;
       }
+      
+     
     });
-    // console.log("agency with id  "+ element_code +" has proposed "+ contor + " projects");
+    console.log("agency with id  "+ element_code +" has proposed a total of "+ contor + " projects over all the years");
+   
     return contor;
   };
 
@@ -33,8 +37,12 @@ d3.csv('./COMP6214_CW1-csv(8).csv', function (err, d) {
       x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
       y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
       c: parseInt(x["Agency Code"]), //Identify agencies by color. The agency code wil be the color number
-      size: identifyAgency(agencies_ids, parseInt(x["Agency Code"])), //size of the bubble will be equal to the number of the proposed projects
-      title: x["Agency Name"].toString()
+      title: x["Agency Name"].toString(),
+      size: identifyAgency(
+        agencies_ids, 
+        parseInt(x["Agency Code"]),
+        parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10))
+      ) //size of the bubble will be equal to the number of the proposed projects      
     });
   });
 
