@@ -1,12 +1,12 @@
 var values = {
-  height: 700,
-  width: 700,
-  margin: 150
+  height: 810,
+  width: 800,
+  margin: 70
 };
 var data = [];
 var agencies_ids = [];
 
-d3.csv('./COMP6214_CW1-csv(14).csv', function (err, d) {
+d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
   if (err) throw err;
   d.map(x => {
     agencies_ids.push(
@@ -36,7 +36,7 @@ d3.csv('./COMP6214_CW1-csv(14).csv', function (err, d) {
   d.map(x => {
     data.push({
       x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
-      y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
+      y: parseFloat(x["Projected/Actual Cost ($ M)"]), // value of the project
       c: parseInt(x["Agency Code"]), //Identify agencies by color. The agency code wil be the color number
       title: x["Agency Name"].toString(),
       size: sizePerYear ( //size of the bubble will be equal to the number of the proposed projects      
@@ -71,7 +71,7 @@ d3.csv('./COMP6214_CW1-csv(14).csv', function (err, d) {
     }), d3.max(data, d => {
       return d.size;
     })])
-    .range([1, 20]);
+    .range([0, 20]);
 
   var opacity = d3.scaleSqrt()
     .domain([d3.min(data, d => {
@@ -87,7 +87,7 @@ d3.csv('./COMP6214_CW1-csv(14).csv', function (err, d) {
   //chart labels
   var labelX = 'Projected/Actual Project Completion Year';
   var labelY = 'Projected/Actual Cost ($ M)';
-  var labelTitle = "Projects proposed over the years and their planned cost ";
+  var labelTitle = "Projects proposed over the years and their planned cost($M) ";
 
   // draw the axis to the bottom, respectively, to the left
   var xAxis = d3.axisBottom().scale(x);
@@ -171,6 +171,19 @@ d3.csv('./COMP6214_CW1-csv(14).csv', function (err, d) {
       return y(d.y);
     })
     .ease("bounce");
+
+
+    d3.select('legend')
+    .data(data)
+    .enter()
+    .append('span')
+    .attr("class",'bubble_color')
+    .style('fill',d => {
+      return color(d.c);
+    } ) // Color the div with the infomation with the agency color
+    .text(d => {
+      return d.title;
+    })    
 
   //when spotting a bubble, make more visible only the same color bubbles
   function fade(c, opacity) {
