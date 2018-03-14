@@ -6,36 +6,40 @@ var values = {
 var data = [];
 var agencies_ids = [];
 
-d3.csv('./COMP6214_CW1-csv(8).csv', function (err, d) {
+d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
   if (err) throw err;
   d.map(x => {
-    agencies_ids.push(x["Agency Code"]);
+    agencies_ids.push(
+     {
+      agency_code: x["Agency Code"],
+      project_year:parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10))
+     } 
+    );
   });
 
-  //get the unique values. THis number represents the agency id.
+  //get the unique values. This number represents the agency id.
   //The number of occurences will represent the number of proposed projects
   //Number of duplicates will be the size of the bubble
   var identifyAgency = function (my_array, element_code, element_year) {
     var counts = {};
     var contor = 0;
     my_array.forEach(elem => {
-      counts[elem] = (counts[elem] || 0) + 1;
-      //verify the if the year is the same year
-      if (parseInt(elem) === parseInt(element_code)) {
-        contor++;
-      }
-      
-     
+      counts[elem.agency_code] = (counts[elem.agency_code] || 0) + 1;
+      //verify the if the year is the same
+      if( /*elem.project_year === element_year && */ parseInt(elem.agency_code) === parseInt(element_code)){     
+        // if (parseInt(elem.agency_code) === parseInt(element_code)) {
+          contor++;
+        // }        
+      }     
     });
-    console.log("agency with id  "+ element_code +" has proposed a total of "+ contor + " projects over all the years");
-   
+    // console.log("agency with id  "+ element_code +" has proposed a total of "+ contor + " projects over all the years");
     return contor;
   };
 
   d.map(x => {
     data.push({
       x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
-      y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
+      y: parseInt(x["Projected/Actual Cost ($ M)"]),//* 1000000, // value of the project
       c: parseInt(x["Agency Code"]), //Identify agencies by color. The agency code wil be the color number
       title: x["Agency Name"].toString(),
       size: identifyAgency(
@@ -81,10 +85,11 @@ d3.csv('./COMP6214_CW1-csv(8).csv', function (err, d) {
     .range([1, .9]);
 
   //color of the bubbles
-  var color = d3.scaleOrdinal(d3.schemeCategory20);
+  var color = d3.scaleOrdinal(d3.schemeCategory10);
   //labels of the axis X and Y
-  var labelX = '["Projected/Actual Project Completion Year';
-  var labelY = 'Projected/Actual Cost ($ M)"';
+  var labelX = 'Projected/Actual Project Completion Year';
+  var labelY = 'Projected/Actual Cost ($ M)';
+  //title of the chart
   var labelTitle = "Projects proposed over the years and their planned cost ";
   // draw the axis to the bottom, respectively, to the left
   var xAxis = d3.axisBottom().scale(x);
@@ -109,7 +114,7 @@ d3.csv('./COMP6214_CW1-csv(8).csv', function (err, d) {
 
   //y axis and its label. Put it to the end of the axis
   svg.append("g")
-    .attr("class", "y axis")
+    .attr("class", "y_axis")
     .call(yAxis)
     .append("text")
     .attr("transform", "rotate(-90)")
@@ -121,7 +126,7 @@ d3.csv('./COMP6214_CW1-csv(8).csv', function (err, d) {
 
   // x axis and their labels. Put it to the end of the axis
   svg.append("g")
-    .attr("class", "x axis")
+    .attr("class", "x_axis")
     .attr("transform", "translate(0," + values.height + ")")
     .call(xAxis)
     .append("text")
@@ -130,7 +135,6 @@ d3.csv('./COMP6214_CW1-csv(8).csv', function (err, d) {
     .attr("dy", ".71em")
     .style("text-anchor", "end")
     .text('Completion Year');
-
 
   svg.selectAll("circle")
     .data(data)
@@ -149,25 +153,14 @@ d3.csv('./COMP6214_CW1-csv(8).csv', function (err, d) {
     }) // these color should correspond to those in legend
     .on('mouseover', function (d, i) {
       fade(d.c, .1);
-      console.log(d, i);
-      // var tooltip = selection
-      //       .append("div")
-      //       .style("position", "relative")
-      //       .style("visibility", "hidden")
-      //       .style("color", "white")
-      //       .style("padding", "8px")
-      //       .style("background-color", "#626D71")
-      //       .style("border-radius", "6px")
-      //       .style("text-align", "center")
-      //       .style("font-family", "monospace")
-      //       .style("width", "400px")
-      //       .text("");
-      // tooltip.html("<p>"+ d.size + "</p>");
-      // tooltip.style("visibility", "visible");
+      // console.log(d);
+      showDetails(d)
     })
     .on('mouseout', (d, i) => {
       fadeOut();
-      //  return tooltip.style("visibility", "hidden");
+      updateDetailsShow();
+      remove('mouseout');
+     
     })
     .transition()
     .delay((d, i) => {
@@ -182,26 +175,44 @@ d3.csv('./COMP6214_CW1-csv(8).csv', function (err, d) {
     })
     .ease("bounce");
 
-  //fade in an fade out functions
+  //fade in and fade out functions
   //these will be later triggered for events such as: mouseover, mouseout
   function fade(c, opacity) {
     svg.selectAll("circle")
+    //when spotting a bubble, make more visible only the same color bubbles
       .filter(d => {
-        // if(d.c != c){
-        //   console.log(d.size + " projects in year " + d.x + "of value $" + d.y +"M" );
-        // }
         return d.c != c;
       })
       .transition()
-      .style("opacity", opacity);
+      .style("opacity", opacity);    
+ 
+  }
+  function showDetails (bubble) {
+    d3.select('agency_name')
+    .data([bubble.title +" has proposed "+bubble.size+" projects in "+ bubble.x +" of $(M) " + bubble.y])
+    .enter()
+    .append('div')
+    .attr("class",'bubble_detail')
+    .text(function(d){
+      return d;
+    })
+    // .append('br');
+  }
+
+  function updateDetailsShow(){
+    // svg.select('bubble_detail').remove();    
+    svg.removeChild('bubble_detail');
+  }
+  function remove(event)
+  {
+     var bubble_details = event.target;
+     var parent    = bubble_details.parentNode;
+     parent.removeChild(bubble_details);
   }
 
   function fadeOut() {
     svg.selectAll("circle")
       .transition()
-      .style("opacity", d => {
-        opacity(d.size);
-      });
+      .style("opacity",1);   
   }
-
 });
