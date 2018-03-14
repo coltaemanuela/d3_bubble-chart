@@ -9,3 +9,4 @@ The size of the bubble is a number of the proposed projects by an agency over a 
 The color of the bubble depends on the “Agency Code” column. 
 
 ![screenshot](https://github.com/coltaemanuela/d3_bubble-chart/blob/master/Screenshot%20from%202018-03-09%2012-43-11.png)
+![hosted_screenshot](https://github.com/coltaemanuela/d3_bubble-chart/blob/master/Screenshot%20from%202018-03-14%2023-54-43.png)
