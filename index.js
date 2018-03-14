@@ -39,7 +39,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
   d.map(x => {
     data.push({
       x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
-      y: parseInt(x["Projected/Actual Cost ($ M)"]),//* 1000000, // value of the project
+      y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
       c: parseInt(x["Agency Code"]), //Identify agencies by color. The agency code wil be the color number
       title: x["Agency Name"].toString(),
       size: identifyAgency(
@@ -159,8 +159,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     .on('mouseout', (d, i) => {
       fadeOut();
       updateDetailsShow();
-      remove('mouseout');
-     
+          
     })
     .transition()
     .delay((d, i) => {
@@ -200,15 +199,10 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
   }
 
   function updateDetailsShow(){
-    // svg.select('bubble_detail').remove();    
-    svg.removeChild('bubble_detail');
+    d3.select('.bubble_detail').remove();    
+    // svg.removeChild('bubble_detail');
   }
-  function remove(event)
-  {
-     var bubble_details = event.target;
-     var parent    = bubble_details.parentNode;
-     parent.removeChild(bubble_details);
-  }
+ 
 
   function fadeOut() {
     svg.selectAll("circle")
