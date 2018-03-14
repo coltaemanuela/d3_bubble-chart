@@ -42,11 +42,11 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
       y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
       c: parseInt(x["Agency Code"]), //Identify agencies by color. The agency code wil be the color number
       title: x["Agency Name"].toString(),
-      size: identifyAgency(
+      size: identifyAgency( //size of the bubble will be equal to the number of the proposed projects      
         agencies_ids, 
         parseInt(x["Agency Code"]),
         parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10))
-      ) //size of the bubble will be equal to the number of the proposed projects      
+      ) 
     });
   });
 
@@ -106,7 +106,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
   //title of the chart. center it
   svg.append("text")
     .attr("x", (values.width / 2))
-    .attr("y", 0 - (values.margin.top / 2))
+    .attr("y", (values.margin.top / 2))
     .attr("class", "title")
     .attr("text-anchor", "middle")
     .style("text-decoration", "bold")
@@ -186,8 +186,6 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
       .style("opacity", opacity);    
  
   }
-  // svg.append("g")
-  // .attr("class","agency_name");
 
   function showDetails (bubble, color) {
     d3.select('agency_name')
@@ -198,8 +196,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     .style('background-color',color )
     .text(function(d){
       return d;
-    })
-    
+    })    
   }
 
   function updateDetailsShow(){
