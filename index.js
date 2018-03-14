@@ -6,7 +6,7 @@ var values = {
 var data = [];
 var agencies_ids = [];
 
-d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
+d3.csv('./COMP6214_CW1-csv(14).csv', function (err, d) {
   if (err) throw err;
   d.map(x => {
     agencies_ids.push(
@@ -17,22 +17,19 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     );
   });
 
-  //get the unique values. This number represents the agency id.
+  //get the unique values. Identify them by the agency id.
   //The number of occurences will represent the number of proposed projects
-  //Number of duplicates will be the size of the bubble
-  var identifyAgency = function (my_array, element_code, element_year) {
+  //Number of duplicates for an year will be the size of the bubble for that year
+  var sizePerYear = function (my_array, element_code, element_year) {
     var counts = {};
     var contor = 0;
     my_array.forEach(elem => {
-      counts[elem.agency_code] = (counts[elem.agency_code] || 0) + 1;
-      //verify the if the year is the same
-      if( /*elem.project_year === element_year && */ parseInt(elem.agency_code) === parseInt(element_code)){     
-        // if (parseInt(elem.agency_code) === parseInt(element_code)) {
+      counts[elem.agency_code] = (counts[elem.agency_code] || 0) + 1;      
+      //verify the if the year and agency are the same 
+      if( elem.project_year === element_year && parseInt(elem.agency_code) === parseInt(element_code)){     
           contor++;
-        // }        
       }     
     });
-    // console.log("agency with id  "+ element_code +" has proposed a total of "+ contor + " projects over all the years");
     return contor;
   };
 
@@ -42,7 +39,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
       y: parseInt(x["Projected/Actual Cost ($ M)"]), // value of the project
       c: parseInt(x["Agency Code"]), //Identify agencies by color. The agency code wil be the color number
       title: x["Agency Name"].toString(),
-      size: identifyAgency( //size of the bubble will be equal to the number of the proposed projects      
+      size: sizePerYear ( //size of the bubble will be equal to the number of the proposed projects      
         agencies_ids, 
         parseInt(x["Agency Code"]),
         parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10))
@@ -86,15 +83,17 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
 
   //color of the bubbles
   var color = d3.scaleOrdinal(d3.schemeCategory10);
-  //labels of the axis X and Y
+
+  //chart labels
   var labelX = 'Projected/Actual Project Completion Year';
   var labelY = 'Projected/Actual Cost ($ M)';
-  //title of the chart
   var labelTitle = "Projects proposed over the years and their planned cost ";
+
   // draw the axis to the bottom, respectively, to the left
   var xAxis = d3.axisBottom().scale(x);
   var yAxis = d3.axisLeft().scale(y);
 
+  //create the SVG and set its dimensions
   var svg = d3.select('.chart')
     .append('svg')
     .attr('class', 'chart')
@@ -103,7 +102,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     .append("g")
     .attr("transform", "translate(" + values.margin + "," + values.margin + ")");
 
-  //title of the chart. center it
+  //title of the chart. centered
   svg.append("text")
     .attr("x", (values.width / 2))
     .attr("y", (values.margin.top / 2))
@@ -112,7 +111,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     .style("text-decoration", "bold")
     .text(labelTitle);
 
-  //y axis and its label. Put it to the end of the axis
+  //y axis and its label. Put it to the end of the Y axis
   svg.append("g")
     .attr("class", "y_axis")
     .call(yAxis)
@@ -124,7 +123,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     .style("text-anchor", "end")
     .text(labelX);
 
-  // x axis and their labels. Put it to the end of the axis
+  // x axis and their labels. Put it to the end of the X axis
   svg.append("g")
     .attr("class", "x_axis")
     .attr("transform", "translate(0," + values.height + ")")
@@ -136,6 +135,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     .style("text-anchor", "end")
     .text('Completion Year');
 
+  //color the bubbles, add event handlers
   svg.selectAll("circle")
     .data(data)
     .enter()
@@ -150,16 +150,14 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     })
     .style("fill", d => {
       return color(d.c);
-    }) // these colors should correspond to those in legend
+    })
     .on('mouseover', function (d, i) {
       fade(d.c, .1);
-      // console.log(d);
       showDetails(d,color(d.c))
     })
     .on('mouseout', (d, i) => {
       fadeOut();
-      updateDetailsShow();
-          
+      updateDetailsShow();          
     })
     .transition()
     .delay((d, i) => {
@@ -174,35 +172,35 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     })
     .ease("bounce");
 
-  //fade in and fade out functions
-  //these will be later triggered for events such as: mouseover, mouseout
+  //when spotting a bubble, make more visible only the same color bubbles
   function fade(c, opacity) {
-    svg.selectAll("circle")
-    //when spotting a bubble, make more visible only the same color bubbles
+    svg.selectAll("circle")    
       .filter(d => {
         return d.c != c;
       })
       .transition()
       .style("opacity", opacity);    
- 
   }
 
+//create a new div containg more details about one selcted bubble.
   function showDetails (bubble, color) {
     d3.select('agency_name')
     .data([bubble.title +" has proposed "+bubble.size+" projects in "+ bubble.x +" of $" + bubble.y + " M"])
     .enter()
     .append('div')
     .attr("class",'bubble_detail')
-    .style('background-color',color )
+    .style('background-color',color ) // Color the div with the infomation with the agency color
     .text(function(d){
       return d;
     })    
   }
 
+  //remove the div. Function will be called when user moves from the selected bubble
   function updateDetailsShow(){
     d3.select('.bubble_detail').remove();    
   }
 
+// Remove opacity when user moves from the selected bubble
   function fadeOut() {
     svg.selectAll("circle")
       .transition()
