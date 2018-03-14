@@ -150,11 +150,11 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     })
     .style("fill", d => {
       return color(d.c);
-    }) // these color should correspond to those in legend
+    }) // these colors should correspond to those in legend
     .on('mouseover', function (d, i) {
       fade(d.c, .1);
       // console.log(d);
-      showDetails(d)
+      showDetails(d,color(d.c))
     })
     .on('mouseout', (d, i) => {
       fadeOut();
@@ -186,23 +186,25 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
       .style("opacity", opacity);    
  
   }
-  function showDetails (bubble) {
+  // svg.append("g")
+  // .attr("class","agency_name");
+
+  function showDetails (bubble, color) {
     d3.select('agency_name')
-    .data([bubble.title +" has proposed "+bubble.size+" projects in "+ bubble.x +" of $(M) " + bubble.y])
+    .data([bubble.title +" has proposed "+bubble.size+" projects in "+ bubble.x +" of $" + bubble.y + " M"])
     .enter()
     .append('div')
     .attr("class",'bubble_detail')
+    .style('background-color',color )
     .text(function(d){
       return d;
     })
-    // .append('br');
+    
   }
 
   function updateDetailsShow(){
     d3.select('.bubble_detail').remove();    
-    // svg.removeChild('bubble_detail');
   }
- 
 
   function fadeOut() {
     svg.selectAll("circle")
