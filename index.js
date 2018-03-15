@@ -12,7 +12,8 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     agencies_ids.push(
      {
       agency_code: x["Agency Code"],
-      project_year:parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10))
+      project_year:parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)),
+      project_value: parseFloat(x["Projected/Actual Cost ($ M)"])
      } 
     );
   });
@@ -33,13 +34,42 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     return contor;
   };
 
+  var valuePerYear = function (my_array, element_code,element_year,element_value) {
+    var totalValue = 0;
+    my_array.forEach(elem => {
+      //verify the if the year and agency are the same 
+      if( elem.project_year === element_year && parseInt(elem.agency_code) === parseInt(element_code)){     
+        totalValue += elem.project_value;
+      }     
+    });
+    return parseFloat(totalValue); 
+  };
+
+  var calculateAverage = function(element_value, element_number){
+      return parseFloat(element_value/element_number); 
+  }
+
   d.map(x => {
     data.push({
-      x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)), //year of the project
-      y: parseFloat(x["Projected/Actual Cost ($ M)"]), // value of the project
-      c: parseInt(x["Agency Code"]), //Identify agencies by color. The agency code wil be the color number
-      title: x["Agency Name"].toString(),
-      size: sizePerYear ( //size of the bubble will be equal to the number of the proposed projects      
+      x: parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)),  //year of the project
+      c: parseInt(x["Agency Code"]), //the code will determine the color of the bubble
+      title: x["Agency Name"].toString(), //name of the agency
+      y:parseFloat( 
+        calculateAverage( //calculate the average sum of the all projects proposed by one agency in one year
+          valuePerYear( // calculate the total sum of the projects in one year
+            agencies_ids,
+            parseInt(x["Agency Code"]),
+            parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10)),        
+            parseFloat(x["Projected/Actual Cost ($ M)"])
+          ),
+          sizePerYear(  //divide this total sum by the total numer of the projects
+            agencies_ids, 
+            parseInt(x["Agency Code"]),
+            parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10))
+          ) 
+        )       
+      ),
+      size: sizePerYear(  //number of proposed projects will determine the size of the bubble
         agencies_ids, 
         parseInt(x["Agency Code"]),
         parseInt(x["Projected/Actual Project Completion Date (B2)"].toString().substring(6, 10))
@@ -49,19 +79,20 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
 
   //map the values in the data array - from the minumum to the maximum - in a rage defined by the dimensions of the graphic
   var x = d3.scaleLinear()
-    .domain([d3.min(data, d => {
+    .domain([d3.min(data, d => { 
       return d.x;
     }), d3.max(data, d => {
       return d.x;
     })])
     .range([0, values.width]);
 
+  //scale on Y axis
   var y = d3.scaleLinear()
     .domain([d3.min(data, d => {
       return d.y;
     }), d3.max(data, d => {
       return d.y;
-    })])
+    })/4])
     .range([values.height, 0]);
 
   //scale for sizing the bubbles
@@ -71,8 +102,9 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
     }), d3.max(data, d => {
       return d.size;
     })])
-    .range([0, 20]);
-
+    .range([0, 22]);
+  
+    //determine opacity depending on the size
   var opacity = d3.scaleSqrt()
     .domain([d3.min(data, d => {
       return d.size;
@@ -152,7 +184,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
       return color(d.c);
     })
     .on('mouseover', function (d, i) {
-      fade(d.c, .1);
+      fade(d.c, 0.005);
       showDetails(d,color(d.c))
     })
     .on('mouseout', (d, i) => {
@@ -198,7 +230,7 @@ d3.csv('./COMP6214_CW1-csv(9).csv', function (err, d) {
 //create a new div containg more details about one selcted bubble.
   function showDetails (bubble, color) {
     d3.select('agency_name')
-    .data([bubble.title +" has proposed "+bubble.size+" projects in "+ bubble.x +" of $" + bubble.y + " M"])
+    .data([bubble.title +" has proposed "+bubble.size+" projects in "+ bubble.x +" of $" + bubble.y + " M in average"])
     .enter()
     .append('div')
     .attr("class",'bubble_detail')
